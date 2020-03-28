@@ -3,49 +3,196 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:HomeWork"
+        xmlns:local="clr-namespace:HomeWork" xmlns:m="clr-namespace:Microsoft.Maps.MapControl.WPF;assembly=Microsoft.Maps.MapControl.WPF" xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="MainWindow" Height="700" Width="1200">
 
 
-
-
-    <Grid Background="Yellow" MouseLeftButtonUp="ButtonMouse_Up">
+    <Grid MouseLeftButtonUp="ButtonMouse_Up">
+        <Grid.Background>
+            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <GradientStop Color="Black" Offset="0"/>
+                <GradientStop Color="#FF9EBDD4" Offset="0.401"/>
+            </LinearGradientBrush>
+        </Grid.Background>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="475*"/>
             <ColumnDefinition Width="122*"/>
+
         </Grid.ColumnDefinitions>
 
-
-
-
-        <Viewbox Stretch="Uniform" Margin="-299,122,145,-140" RenderTransformOrigin="0.5,0.5">
-            <Viewbox.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform ScaleY="-1"/>
-                    <SkewTransform/>
-                    <RotateTransform/>
-                    <TranslateTransform/>
-                </TransformGroup>
-            </Viewbox.RenderTransform>
-            <local:Joystick x:Name="Joystick_Var"  HorizontalAlignment="Left" Height="50" VerticalAlignment="Top" 
-                        Width="50" Margin="178,566,0,0" RenderTransformOrigin="-0.143,3.749" Loaded="Joystick_Loaded">
+        <StackPanel HorizontalAlignment="Left" Height="319" Margin="663,352,0,-0.333"
+                    VerticalAlignment="Top" Width="530" Grid.ColumnSpan="2" x:Name="Control_Navigator">
+            <local:Joystick HorizontalAlignment="Left" Height="100"
+                            VerticalAlignment="Top" Width="100" RenderTransformOrigin="0.5,0.5" Margin="130,0,0,0"
+                            x:Name="Joystick_Var">
                 <local:Joystick.RenderTransform>
                     <TransformGroup>
-                        <ScaleTransform ScaleY="-1"/>
+                        <ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
                         <SkewTransform/>
-                        <RotateTransform Angle="5760.753"/>
-                        <TranslateTransform X="2.136" Y="-325.307"/>
+                        <RotateTransform/>
+                        <TranslateTransform/>
                     </TransformGroup>
                 </local:Joystick.RenderTransform>
             </local:Joystick>
-        </Viewbox>
+
+            <Slider x:Name="slider1ValuesMinus1To1" HorizontalAlignment="Left" VerticalAlignment="Top"
+                Height="35" Width="273" Margin="100,120,0,0" TickPlacement="BottomRight" Value="{Binding vmController.vm_Throttle}"
+                    TickFrequency="0.25" Minimum="-1" Maximum="1" Foreground="Black" Background="#FFFFFA00">
+                <Slider.LayoutTransform>
+                    <ScaleTransform ScaleX="1" ScaleY="3"/>
+                </Slider.LayoutTransform>
+            </Slider>
+
+
+            <Slider x:Name="slider2Values0To1"
+                Height="35" Width="228" TickPlacement="BottomRight" IsDirectionReversed="True" Value="{Binding vmController.vm_Airelon}"
+                TickFrequency="0.125" Minimum="0" Maximum="1" Foreground="Black" Background="#FFF5FF00" RenderTransformOrigin="0.5,0.5"
+                    HorizontalAlignment="Left" VerticalAlignment="Top" Margin="380,-190,-93,0">
+                <Slider.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform/>
+                        <RotateTransform Angle="90.245"/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </Slider.RenderTransform>
+                <Slider.LayoutTransform>
+                    <ScaleTransform ScaleX="1" ScaleY="3"/>
+                </Slider.LayoutTransform>
+            </Slider>
+        </StackPanel>
 
 
 
+        <m:Map CredentialsProvider="AttsGkqIHCOIEA11KtQZDphl5bi8lppin64jeg-ZOOhiS4cdHA_EXJwHSbyZi4Xo"
+                x:Name="my_map" Mode="Road" Center="32.0055, 34.8854" Margin="0,0,238,0" ScaleVisibility="Hidden" >
+
+            <m:Pushpin  x:Name ="myPushPin"  Location ="{Binding  vmMap.vm_LocationPushPin, Mode=OneWay}" />
+
+
+            <TextBox HorizontalAlignment="Left" Height="40" FontSize="22" TextWrapping="Wrap" Text="{Binding vmMap.vm_Latitude, Mode=OneWay}"
+                     VerticalAlignment="Top" Width="147" Margin="212,68,0,0"/>
+            <TextBox HorizontalAlignment="Left" Height="39" FontSize="22" Margin="210,10,0,0" TextWrapping="Wrap" Text="{Binding vmMap.vm_Longitude, Mode=OneWay}"
+                     VerticalAlignment="Top" Width="146"/>
+            <Label Content="Longitutide is:" FontSize="22" Foreground="Black" HorizontalAlignment="Left" Height="34" VerticalAlignment="Top" Width="154" Margin="10,10,0,0"/>
+            <Label Content="Langitutide is:" FontSize="22" Foreground="Black" HorizontalAlignment="Left" Height="34" VerticalAlignment="Top" Width="154" Margin="10,66,0,0"/>
+
+
+
+            <Label Content="Rudder is:" FontSize="22" Foreground="Black" HorizontalAlignment="Left" Height="34" VerticalAlignment="Top" Width="154" Margin="394,10,0,0"/>
+
+            <TextBox HorizontalAlignment="Left" Height="40" FontSize="22" TextWrapping="Wrap" Text="{Binding vmController.vm_Rudder, Mode=OneWay}"
+                     VerticalAlignment="Top" Width="147" Margin="555,10,0,0"/>
+
+            <Label Content="Aileron is:" FontSize="22" Foreground="Black" HorizontalAlignment="Left" Height="34" VerticalAlignment="Top" Width="154" Margin="391,78,0,0"/>
+
+            <TextBox HorizontalAlignment="Left" Height="40" FontSize="22" TextWrapping="Wrap" Text="{Binding vmController.vm_Airelon, Mode=OneWay}"
+                     VerticalAlignment="Top" Width="147" Margin="555,79,0,0"/>
+
+
+
+
+
+        </m:Map>
+
+
+        <ProgressBar x:Name="AirSpeed" Height="Auto" Margin="663,-17,215.333,654.667" RenderTransformOrigin="0.5,0.5" Grid.ColumnSpan="2"
+                      Value="{Binding vmSensor.vm_AirSpeed, Mode=OneWay}" Maximum="10" Minimum="0">
+            <ProgressBar.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform X="200" Y="25"/>
+                </TransformGroup>
+            </ProgressBar.RenderTransform>
+        </ProgressBar>
+        <ProgressBar x:Name="Altitude" Height="Auto" Margin="663,10,215.333,627.667" RenderTransformOrigin="0.5,0.5" Grid.ColumnSpan="2"
+                      Value="{Binding vmSensor.vm_Altitude, Mode=OneWay}" Maximum="10" Minimum="0">
+            <ProgressBar.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform X="200" Y="40"/>
+                </TransformGroup>
+            </ProgressBar.RenderTransform>
+        </ProgressBar>
+        <ProgressBar x:Name="Roll" Height="Auto" Margin="663,81,214.333,556.667" RenderTransformOrigin="0.5,0.5" Background="#FF90CAF9" 
+                     Grid.ColumnSpan="2" Value="{Binding vmSensor.vm_Roll, Mode=OneWay}" Maximum="10" Minimum="0">
+            <ProgressBar.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform X="200" Y="10"/>
+                </TransformGroup>
+            </ProgressBar.RenderTransform>
+        </ProgressBar>
+        <ProgressBar x:Name="Altimeter" Height="Auto" Margin="663,65,215.333,572.667" RenderTransformOrigin="0.5,0.5" Grid.ColumnSpan="2"
+                     Value="{Binding vmSensor.vm_Altimeter, Mode=OneWay}" Maximum="10" Minimum="0">
+            <ProgressBar.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform X="200" Y="110"/>
+                </TransformGroup>
+            </ProgressBar.RenderTransform>
+        </ProgressBar>
+        <ProgressBar x:Name="Heading" Height="Auto" Margin="663,127,214.333,510.667" RenderTransformOrigin="0.5,0.5" Grid.ColumnSpan="2"
+                    Value="{Binding vmSensor.vm_Heading, Mode=OneWay}" Maximum="10" Minimum="0" >
+            <ProgressBar.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform X="200" Y="90"/>
+                </TransformGroup>
+            </ProgressBar.RenderTransform>
+        </ProgressBar>
+        <ProgressBar x:Name="Ground_Speed" Height="Auto" Margin="663,184,214.333,453.667" RenderTransformOrigin="0.5,0.5" Grid.ColumnSpan="2"
+                     Value="{Binding vmSensor.vm_GroundSpeed, Mode=OneWay}" Maximum="10" Minimum="0">
+            <ProgressBar.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform X="200" Y="75"/>
+                </TransformGroup>
+            </ProgressBar.RenderTransform>
+        </ProgressBar>
+        <ProgressBar x:Name="Pitch" Height="Auto" Margin="663,79,214.333,558.667" RenderTransformOrigin="0.5,0.5" Grid.ColumnSpan="2"
+                     Value="{Binding vmSensor.vm_Pitch, Mode=OneWay}" Maximum="10" Minimum="0">
+            <ProgressBar.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform X="200" Y="55"/>
+                </TransformGroup>
+            </ProgressBar.RenderTransform>
+        </ProgressBar>
+        <TextBlock HorizontalAlignment="Left" Margin="755,14,0,0" TextWrapping="Wrap" Text="AirSpeed" VerticalAlignment="Top" Width="56" Height="24" OpacityMask="#FFFFF9F9" Foreground="White"/>
+        <TextBlock HorizontalAlignment="Left" Margin="755,55,0,0" TextWrapping="Wrap" Text="Altitude" VerticalAlignment="Top" Width="56" Height="24" OpacityMask="#FFFFF9F9" Foreground="White"/>
+        <TextBlock HorizontalAlignment="Left" Margin="755,99,0,0" TextWrapping="Wrap" Text="Roll" VerticalAlignment="Top" Width="56" Height="24" OpacityMask="#FFFFF9F9" Foreground="White"/>
+        <TextBlock HorizontalAlignment="Left" Margin="755,141,0,0" TextWrapping="Wrap" Text="Pitch" VerticalAlignment="Top" Width="56" Height="24" OpacityMask="#FFFFF9F9" Foreground="White"/>
+        <TextBlock HorizontalAlignment="Left" Margin="755,182,0,0" TextWrapping="Wrap" Text="Altimeter" VerticalAlignment="Top" Width="56" Height="24" OpacityMask="#FFFFF9F9" Foreground="White"/>
+        <TextBlock HorizontalAlignment="Left" Margin="755,222,0,0" TextWrapping="Wrap" Text="Heading" VerticalAlignment="Top" Width="56" Height="24" OpacityMask="#FFFFF9F9" Foreground="White"/>
+        <TextBlock HorizontalAlignment="Left" Margin="755,265,0,0" TextWrapping="Wrap" Text="Ground Speed" VerticalAlignment="Top" Width="91" Height="24" OpacityMask="#FFFFF9F9" Foreground="White"/>
+        <ProgressBar x:Name="Vertical_Speed" Height="Auto" Margin="663,225,214.333,412.667" RenderTransformOrigin="0.5,0.5" Grid.ColumnSpan="2"
+                     Value="{Binding vmSensor.vm_VerticalSpeed, Mode=OneWay}" Maximum="10" Minimum="0">
+            <ProgressBar.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform X="200" Y="75"/>
+                </TransformGroup>
+            </ProgressBar.RenderTransform>
+        </ProgressBar>
+        <TextBlock HorizontalAlignment="Left" Margin="755,306,0,0" TextWrapping="Wrap" Text="Vertical Speed" VerticalAlignment="Top" Width="91" Height="24" OpacityMask="#FFFFF9F9" Foreground="White"/>
     </Grid>
-
-
-
 
 </Window>
