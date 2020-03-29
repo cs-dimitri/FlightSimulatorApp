@@ -12,58 +12,59 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Microsoft.Maps.MapControl.WPF;
 
-namespace FlightSimulatorApp
+namespace HomeWork
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
+
         public MainWindow()
         {
             InitializeComponent();
+            IFlightSimulatorModel myFlightSimulatorModel = new MyFlightSimulatorModel(new MyTelnetClient());
+
+
+            VM_Sensor vmSensor = new VM_Sensor(myFlightSimulatorModel);
+
+           // Map map = my_map;
+            VM_Map vmMap = new VM_Map(myFlightSimulatorModel);
+
+
+
+
+
+            VM_Navigator_Controller vmController = new VM_Navigator_Controller(myFlightSimulatorModel);
+            Joystick_Var.SetVM(vmController);
+
+            Sensors_Var.SetVM(vmSensor);
+
+            DataContext = new
+            {
+                vmMap,
+                vmSensor,
+                vmController
+            };
+
+           // myFlightSimulatorModel.connect("127.0.0.1", "7771");
+         //  myFlightSimulatorModel.start();
+
         }
 
         private void Joystick_Loaded(object sender, RoutedEventArgs e)
         {
-            
-        }
 
-        private void Joystick_Loaded_1(object sender, RoutedEventArgs e)
+        }
+        //For sake of joystick
+        private void ButtonMouse_Up(object sender, MouseButtonEventArgs e)
         {
-
+            this.Joystick_Var.SetPiptickToCenter();
+            Joystick_Var.mouseIsPressed = false;
         }
 
-        private void Joystick_Loaded_2(object sender, RoutedEventArgs e)
-        {
 
-        }
-
-        private void Joystick_Loaded_3(object sender, RoutedEventArgs e)
-        {
-            
-        }
-
-        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            double val = Convert.ToDouble(e.NewValue);
-            string msg = String.Format("current value is: {0}", val);
-            t1.Text = msg;
-        }
-
-        private void s2_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            double val = Convert.ToDouble(e.NewValue);
-            string msg = String.Format("current value is: {0}", val);
-            t1_Copy.Text = msg;
-        }
-
-        private void j1_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            this.j1.isPressed = false;
-            this.j1.knobPosition.X = 0;
-            this.j1.knobPosition.Y = 0;
-        }
     }
 }
