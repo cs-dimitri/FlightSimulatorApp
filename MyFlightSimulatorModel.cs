@@ -6,16 +6,25 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Threading;
+using System.Windows.Threading;
+using System.IO;
+
 
 namespace HomeWork
 {
     public class MyFlightSimulatorModel : IFlightSimulatorModel
     {
         private ITelnetClient telnetClient;
+        private static Mutex mut1 = new Mutex();
         volatile bool stop;
-
+        private string warningString;
+        private DispatcherTimer timer;
+        private bool isNumber;
+        private double stam;
         private double rudder;
         private double elevator;
+        private double aileron;
+        private double throttle;
         private double airSpeed; //8 values from here!
         private double altitude;
         private double roll;
@@ -29,6 +38,23 @@ namespace HomeWork
         {
             this.telnetClient = MyTelnetClient;
             stop = false;
+            this.timer = new DispatcherTimer();
+            this.timer.Interval = TimeSpan.FromSeconds(3); //showing msg on screen for 3 seconds
+            this.timer.Tick += delegate { this.WarningString = String.Empty; }; //removing msg
+        }
+
+        public string WarningString
+        {
+            get
+            {
+                return this.warningString;
+            }
+
+            set
+            {
+                this.warningString = value;
+                NotifyPropertyChanged("WarningString");
+            }
         }
 
         public double Rudder
@@ -171,6 +197,7 @@ namespace HomeWork
         }
 
         private double latitude;
+
         public double Latitude
         {
             get
@@ -181,10 +208,12 @@ namespace HomeWork
             set
             {
                 this.latitude = value;
-                NotifyPropertyChanged("Latitude");
+                NotifyPropertyChanged("LocationPushPin");
             }
         }
+
         private double longitude;
+
         public double Longitude
         {
             get
@@ -195,7 +224,35 @@ namespace HomeWork
             set
             {
                 this.longitude = value;
-                NotifyPropertyChanged("Longitude");
+                NotifyPropertyChanged("LocationPushPin");
+            }
+        }
+
+        public double Aileron
+        {
+            get
+            {
+                return this.aileron;
+            }
+
+            set
+            {
+                this.aileron = value;
+                NotifyPropertyChanged("Aileron");
+            }
+        }
+
+        public double Throttle
+        {
+            get
+            {
+                return this.throttle;
+            }
+
+            set
+            {
+                this.throttle = value;
+                NotifyPropertyChanged("Throttle");
             }
         }
 
@@ -223,154 +280,270 @@ namespace HomeWork
 
         public void start()
         {
-
-
-
-
             new Thread(delegate () {
                 Random rnd = new Random();
-                while (!stop)
+                try
                 {
+                    while (!stop)
+                    {
+                        int num = rnd.Next(1000);
+                        double foo = num % 10;
+                        string airSpeed1 = "set /instrumentation/altimeter/indicated-altitude-ft" + " " + foo.ToString() + "\n";
+                        num = rnd.Next(1000);
+                        foo = num % 10;
+                        string altitude1 = "set /instrumentation/gps/indicated-altitude-ft" + " " + foo.ToString() + "\n";
+                        num = rnd.Next(1000);
+                        foo = num % 10;
+                        string roll1 = "set /instrumentation/attitude-indicator/internal-roll-deg" + " " + foo.ToString() + "\n";
+                        num = rnd.Next(1000);
+                        foo = num % 10;
+                        string pitch1 = "set /instrumentation/attitude-indicator/internal-pitch-deg" + " " + foo.ToString() + "\n";
+                        num = rnd.Next(1000);
+                        foo = num % 10;
+                        string altimeter1 = "set /instrumentation/altimeter/indicated-altitude-ft" + " " + foo.ToString() + "\n";
+                        num = rnd.Next(1000);
+                        foo = num % 10;
+                        string heading1 = "set /instrumentation/heading-indicator/indicated-heading-deg" + " " + foo.ToString() + "\n";
+                        num = rnd.Next(1000);
+                        foo = num % 10;
+                        string groundSpeed1 = "set /instrumentation/gps/indicated-ground-speed-kt" + " " + foo.ToString() + "\n";
+                        num = rnd.Next(1000);
+                        foo = num % 10;
+                        string verticalSpeed1 = "set /instrumentation/gps/indicated-vertical-speed" + " " + foo.ToString() + "\n";
 
-                    int num = rnd.Next(1000);
-                    double foo = num % 10;
-                    string airSpeed1 = "set /instrumentation/altimeter/indicated-altitude-ft" + " " + foo.ToString() + "\n";
-                    num = rnd.Next(1000);
-                    foo = num % 10;
-                    string altitude1 = "set /instrumentation/gps/indicated-altitude-ft" + " " + foo.ToString() + "\n";
-                    num = rnd.Next(1000);
-                    foo = num % 10;
-                    string roll1 = "set /instrumentation/attitude-indicator/internal-roll-deg" + " " + foo.ToString() + "\n";
-                    num = rnd.Next(1000);
-                    foo = num % 10;
-                    string pitch1 = "set /instrumentation/attitude-indicator/internal-pitch-deg" + " " + foo.ToString() + "\n";
-                    num = rnd.Next(1000);
-                    foo = num % 10;
-                    string altimeter1 = "set /instrumentation/altimeter/indicated-altitude-ft" + " " + foo.ToString() + "\n";
-                    num = rnd.Next(1000);
-                    foo = num % 10;
-                    string heading1 = "set /instrumentation/heading-indicator/indicated-heading-deg" + " " + foo.ToString() + "\n";
-                    num = rnd.Next(1000);
-                    foo = num % 10;
-                    string groundSpeed1 = "set /instrumentation/gps/indicated-ground-speed-kt" + " " + foo.ToString() + "\n";
-                    num = rnd.Next(1000);
-                    foo = num % 10;
-                    string verticalSpeed1 = "set /instrumentation/gps/indicated-vertical-speed" + " " + foo.ToString() + "\n";
-
-
-                  
-                    foo = rnd.NextDouble() * (32 - 31) + 31;
-                    string latitude = "set /position/latitude-deg" + " " + foo.ToString() + "\n";
-
-                    
-                    foo = rnd.NextDouble() * (32 - 31) + 31;
-                    string longitude = "set /position/longitude-deg" + " " + foo.ToString() + "\n";
+                        foo = rnd.NextDouble() * (32 - 31) + 31;
+                        string latitude1 = "set /position/latitude-deg" + " " + foo.ToString() + "\n";
 
 
-                    this.telnetClient.write(airSpeed1);
-                    this.telnetClient.write(altitude1);
-                    this.telnetClient.write(roll1);
-                    this.telnetClient.write(pitch1);
-                    this.telnetClient.write(altimeter1);
-                    this.telnetClient.write(heading1);
-                    this.telnetClient.write(groundSpeed1);
-                    this.telnetClient.write(verticalSpeed1);
+                        foo = rnd.NextDouble() * (32 - 31) + 31;
+                        string longitude1 = "set /position/longitude-deg" + " " + foo.ToString() + "\n";
 
-                    this.telnetClient.write(latitude);
-                    this.telnetClient.write(longitude);
+                        /*string airSpeed1 = "get /instrumentation/altimeter/indicated-altitude-ft\n";
+                        string altitude1 = "get /instrumentation/gps/indicated-altitude-ft\n";
+                        string roll1 = "get /instrumentation/attitude-indicator/internal-roll-deg\n";
+                        string pitch1 = "get /instrumentation/attitude-indicator/internal-pitch-deg\n";
+                        string altimeter1 = "get /instrumentation/altimeter/indicated-altitude-ft\n";
+                        string heading1 = "get /instrumentation/heading-indicator/indicated-heading-deg\n";
+                        string groundSpeed1 = "get /instrumentation/gps/indicated-ground-speed-kt\n";
+                        string verticalSpeed1 = "get /instrumentation/gps/indicated-vertical-speed\n";
+                        string latitude1 = "get /position/latitude-deg\n";
+                        string longitude1 = "get /position/longitude-deg\n";*/
 
-                    Thread.Sleep(125);
-                   // string answer1 = this.telnetClient.read();
+                        string answer;
 
-                    /*                    string msg = "get /instrumentation/altimeter/indicated-altitude-ft\n"
-                                        + "get /instrumentation/gps/indicated-altitude-ft\n"
-                                        + "get /instrumentation/attitude-indicator/internal-roll-deg\n"
-                                        + "get /instrumentation/attitude-indicator/internal-pitch-deg\n"
-                                        + "get /instrumentation/altimeter/indicated-altitude-ft\n"
-                                        + "get /instrumentation/heading-indicator/indicated-heading-deg\n"
-                                        + "get /instrumentation/gps/indicated-ground-speed-kt\n"
-                                        + "get /instrumentation/gps/indicated-vertical-speed\n";
-                                        this.telnetClient.write(msg);*/
+                        mut1.WaitOne();
+
+                        this.telnetClient.write(airSpeed1);
+                        answer = this.telnetClient.read().Split('\n')[0];
+                        isNumber = double.TryParse(answer, out stam);
+
+                        if (answer != "ERR" && isNumber)
+                        {
+                            this.AirSpeed = Double.Parse(answer);
+                        }
+                        else
+                        {
+                            showIndicationOnScreen("Error when receiving AirSpeed value");
+                        }
+
+                        this.telnetClient.write(altitude1);
+                        answer = this.telnetClient.read().Split('\n')[0];
+                        isNumber = double.TryParse(answer, out stam);
+
+                        if (answer != "ERR" && isNumber)
+                        {
+                            this.Altitude = Double.Parse(answer);
+                        }
+                        else
+                        {
+                            showIndicationOnScreen("Error when receiving Altitude value");
+                        }
+
+                        this.telnetClient.write(roll1);
+                        answer = this.telnetClient.read().Split('\n')[0];
+                        isNumber = double.TryParse(answer, out stam);
+
+                        if (answer != "ERR" && isNumber)
+                        {
+                            this.Roll = Double.Parse(answer);
+                        }
+                        else
+                        {
+                            showIndicationOnScreen("Error when receiving Roll value");
+                        }
+
+                        this.telnetClient.write(pitch1);
+                        answer = this.telnetClient.read().Split('\n')[0];
+                        isNumber = double.TryParse(answer, out stam);
+
+                        if (answer != "ERR" && isNumber)
+                        {
+                            this.Pitch = Double.Parse(answer);
+                        }
+                        else
+                        {
+                            showIndicationOnScreen("Error when receiving Pitch value");
+                        }
+
+                        this.telnetClient.write(altimeter1);
+                        answer = this.telnetClient.read().Split('\n')[0];
+                        isNumber = double.TryParse(answer, out stam);
+
+                        if (answer != "ERR" && isNumber)
+                        {
+                            this.Altimeter = Double.Parse(answer);
+                        }
+                        else
+                        {
+                            showIndicationOnScreen("Error when receiving Altimeter value");
+                        }
+
+                        this.telnetClient.write(heading1);
+                        answer = this.telnetClient.read().Split('\n')[0];
+                        isNumber = double.TryParse(answer, out stam);
+
+                        if (answer != "ERR" && isNumber)
+                        {
+                            this.Heading = Double.Parse(answer);
+                        }
+                        else
+                        {
+                            showIndicationOnScreen("Error when receiving Heading value");
+                        }
+
+                        this.telnetClient.write(groundSpeed1);
+                        answer = this.telnetClient.read().Split('\n')[0];
+                        isNumber = double.TryParse(answer, out stam);
+
+                        if (answer != "ERR" && isNumber)
+                        {
+                            this.GroundSpeed = Double.Parse(answer);
+                        }
+                        else
+                        {
+                            showIndicationOnScreen("Error when receiving GroundSpeed value");
+                        }
+
+                        this.telnetClient.write(verticalSpeed1);
+                        answer = this.telnetClient.read().Split('\n')[0];
+                        isNumber = double.TryParse(answer, out stam);
+
+                        if (answer != "ERR" && isNumber)
+                        {
+                            this.VerticalSpeed = Double.Parse(answer);
+                        }
+                        else
+                        {
+                            showIndicationOnScreen("Error when receiving VerticalSpeed value");
+                        }
+
+                        this.telnetClient.write(latitude1);
+                        answer = this.telnetClient.read().Split('\n')[0];
+                        isNumber = double.TryParse(answer, out stam);
+
+                        if (answer != "ERR" && isNumber)
+                        {
+                            double lat = Double.Parse(answer);
+                            if ((-90 < lat) && (lat < 90))
+                            {
+                                this.Latitude = Double.Parse(answer);
+                            }
+                            else
+                            {
+                                /*----------------------------------out of the world-------------------------------------*/
+                                //is it even possible to get values out of the range? -- question for mister dimka
+                            }
+                        }
+                        else
+                        {
+                            showIndicationOnScreen("Error when receiving Latitude value");
+                        }
+
+                        this.telnetClient.write(longitude1);
+                        answer = this.telnetClient.read().Split('\n')[0];
+                        isNumber = double.TryParse(answer, out stam);
+
+                        if (answer != "ERR" && isNumber)
+                        {
+                            double longi = Double.Parse(answer);
+                            if ((-180 < longi) && (longi < 180))
+                            {
+                                this.Longitude = Double.Parse(answer);
+                            }
+                            else
+                            {
+                                /*----------------------------------out of the world-------------------------------------*/
+                            }
+                        }
+                        else
+                        {
+                            showIndicationOnScreen("Error when receiving Longitude value");
+                        }
+
+                        mut1.ReleaseMutex();
 
 
-                    string answer = this.telnetClient.read();
-                    string[] values = parseAnswer(answer);
-                    setValues(values);
-                   // Thread.Sleep(1);// read the data in 4Hz
+                        Thread.Sleep(125);
+                    }
                 }
+                catch (IOException e)
+                {
+                    this.timer.Interval = TimeSpan.FromSeconds(10);
+                    showIndicationOnScreen(e.Message);
+                    mut1.ReleaseMutex();
+                    disconnect();
+                }
+                catch (ObjectDisposedException e)
+                {
+                    this.timer.Interval = TimeSpan.FromSeconds(1);
+                    showIndicationOnScreen(e.Message);
+                    mut1.ReleaseMutex();
+                }
+
             }).Start();
 
         }
 
-        /*lexer- divides into tokens->each token is a string representing the value of a member */
-        private string[] parseAnswer(string answer)
+        public void showIndicationOnScreen(string warningMsg)
         {
-            int index = answer.IndexOf("\0");
-            string subStr = answer.Substring(0, index);
-            string[] values = subStr.Split('\n');
-
-            if (values[values.Length - 1] == "")
-            {
-                Array.Resize(ref values, values.Length - 1);
-            }
-
-            return values;
+            this.WarningString = warningMsg;
+            timer.Start();
         }
 
-        /* Parser- converts to Double and sets the values.
-         * In case of a value=ERR, do nothing-> stays with previous value.
-         */
-        private void setValues(string[] values)
+        public void sendSetRequest(string setRequest, string varName)
         {
-            if (values[0] != "ERR") //airSpeed
+            try
             {
-                this.AirSpeed = Double.Parse(values[0]);
-            }
+                mut1.WaitOne();
+                this.telnetClient.write(setRequest);
+                string answer = this.telnetClient.read();
 
-            if (values[1] != "ERR") //altitude
-            {
-                this.Altitude = Double.Parse(values[1]);
-            }
+                //mut1.ReleaseMutex();
 
-            if (values[2] != "ERR") //roll
-            {
-                this.Roll = Double.Parse(values[2]);
+                int index = answer.IndexOf("\n");
+                string subStr = answer.Substring(0, index);
+                if (subStr == "ERR")
+                {
+                    showIndicationOnScreen("Error when receiving " + varName + " value");
+                }
             }
+            catch (IOException e)
+            {
+                this.timer.Interval = TimeSpan.FromSeconds(10);
+                showIndicationOnScreen(e.Message);
+                disconnect();
+            }
+            catch (ObjectDisposedException e)
+            {
+                this.timer.Interval = TimeSpan.FromSeconds(1);
+                showIndicationOnScreen(e.Message);
 
-            if (values[3] != "ERR") //pitch
-            {
-                this.Pitch = Double.Parse(values[3]);
             }
-
-            if (values[4] != "ERR") //altimeter
+            finally
             {
-                this.Altimeter = Double.Parse(values[4]);
-            }
-
-            if (values[5] != "ERR") //heading
-            {
-                this.Heading = Double.Parse(values[5]);
-            }
-
-            if (values[6] != "ERR") //groundSpeed
-            {
-                this.GroundSpeed = Double.Parse(values[6]);
-            }
-
-            if (values[7] != "ERR") //verticalSpeed
-            {
-                this.VerticalSpeed = Double.Parse(values[7]);
-            }
-
-            if (values[8] != "ERR") //verticalSpeed
-            {
-                this.Latitude = Double.Parse(values[8]);
-            }
-            if (values[9] != "ERR") //verticalSpeed
-            {
-                
-                this.Longitude = Double.Parse(values[9]);
+                mut1.ReleaseMutex();
             }
         }
+
     }
 }
