@@ -8,12 +8,20 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Windows.Threading;
 using System.IO;
-
+using System.Windows;
 
 namespace HomeWork
 {
     public class MyFlightSimulatorModel : IFlightSimulatorModel
     {
+
+
+
+
+
+
+        private string timeoutMsg = "time out";
+
         private ITelnetClient telnetClient;
         private static Mutex mut1 = new Mutex();
         volatile bool stop;
@@ -34,13 +42,24 @@ namespace HomeWork
         private double groundSpeed;
         private double verticalSpeed;
 
-        public MyFlightSimulatorModel(ITelnetClient MyTelnetClient)
+        private MyFlightSimulatorModel(ITelnetClient MyTelnetClient)
         {
             this.telnetClient = MyTelnetClient;
             stop = false;
             this.timer = new DispatcherTimer();
             this.timer.Interval = TimeSpan.FromSeconds(3); //showing msg on screen for 3 seconds
             this.timer.Tick += delegate { this.WarningString = String.Empty; }; //removing msg
+        }
+
+
+        private static readonly IFlightSimulatorModel Instance = new MyFlightSimulatorModel(new MyTelnetClient());
+
+        public static IFlightSimulatorModel model
+        {
+            get
+            {
+                return Instance;
+            }
         }
 
         public string WarningString
@@ -280,11 +299,15 @@ namespace HomeWork
 
         public void start()
         {
-            new Thread(delegate () {
+            new Thread(delegate ()
+            {
                 Random rnd = new Random();
-                try
+                Thread th = Thread.CurrentThread;
+
+                int i = th.ManagedThreadId;
+                while (!stop)
                 {
-                    while (!stop)
+                    try
                     {
                         int num = rnd.Next(1000);
                         double foo = num % 10;
@@ -343,7 +366,16 @@ namespace HomeWork
                         }
                         else
                         {
-                            showIndicationOnScreen("Error when receiving AirSpeed value");
+                            if (answer == timeoutMsg)
+                            {
+                                this.timer.Interval = TimeSpan.FromSeconds(4);
+                                showIndicationOnScreen("Server is under load of requests");
+
+                            }
+                            else // Got an ERR as an answer
+                            {
+                                showIndicationOnScreen("Error when receiving AirSpeed value");
+                            }
                         }
 
                         this.telnetClient.write(altitude1);
@@ -356,7 +388,15 @@ namespace HomeWork
                         }
                         else
                         {
-                            showIndicationOnScreen("Error when receiving Altitude value");
+                            if (answer == timeoutMsg)
+                            {
+                                this.timer.Interval = TimeSpan.FromSeconds(4);
+                                showIndicationOnScreen("Server is under load of requests");
+                            }
+                            else // Got an ERR as an answer
+                            {
+                                showIndicationOnScreen("Error when receiving Altitude value");
+                            }
                         }
 
                         this.telnetClient.write(roll1);
@@ -369,7 +409,15 @@ namespace HomeWork
                         }
                         else
                         {
-                            showIndicationOnScreen("Error when receiving Roll value");
+                            if (answer == timeoutMsg)
+                            {
+                                this.timer.Interval = TimeSpan.FromSeconds(4);
+                                showIndicationOnScreen("Server is under load of requests");
+                            }
+                            else // Got an ERR as an answer
+                            {
+                                showIndicationOnScreen("Error when receiving Roll value");
+                            }
                         }
 
                         this.telnetClient.write(pitch1);
@@ -382,7 +430,15 @@ namespace HomeWork
                         }
                         else
                         {
-                            showIndicationOnScreen("Error when receiving Pitch value");
+                            if (answer == timeoutMsg)
+                            {
+                                this.timer.Interval = TimeSpan.FromSeconds(4);
+                                showIndicationOnScreen("Server is under load of requests");
+                            }
+                            else // Got an ERR as an answer
+                            {
+                                showIndicationOnScreen("Error when receiving Pitch value");
+                            }
                         }
 
                         this.telnetClient.write(altimeter1);
@@ -395,7 +451,15 @@ namespace HomeWork
                         }
                         else
                         {
-                            showIndicationOnScreen("Error when receiving Altimeter value");
+                            if (answer == timeoutMsg)
+                            {
+                                this.timer.Interval = TimeSpan.FromSeconds(4);
+                                showIndicationOnScreen("Server is under load of requests");
+                            }
+                            else // Got an ERR as an answer
+                            {
+                                showIndicationOnScreen("Error when receiving Altimeter value");
+                            }
                         }
 
                         this.telnetClient.write(heading1);
@@ -408,7 +472,15 @@ namespace HomeWork
                         }
                         else
                         {
-                            showIndicationOnScreen("Error when receiving Heading value");
+                            if (answer == timeoutMsg)
+                            {
+                                this.timer.Interval = TimeSpan.FromSeconds(4);
+                                showIndicationOnScreen("Server is under load of requests");
+                            }
+                            else // Got an ERR as an answer
+                            {
+                                showIndicationOnScreen("Error when receiving Heading value");
+                            }
                         }
 
                         this.telnetClient.write(groundSpeed1);
@@ -421,7 +493,15 @@ namespace HomeWork
                         }
                         else
                         {
-                            showIndicationOnScreen("Error when receiving GroundSpeed value");
+                            if (answer == timeoutMsg)
+                            {
+                                this.timer.Interval = TimeSpan.FromSeconds(4);
+                                showIndicationOnScreen("Server is under load of requests");
+                            }
+                            else // Got an ERR as an answer
+                            {
+                                showIndicationOnScreen("Error when receiving GroundSpeed value");
+                            }
                         }
 
                         this.telnetClient.write(verticalSpeed1);
@@ -434,7 +514,15 @@ namespace HomeWork
                         }
                         else
                         {
-                            showIndicationOnScreen("Error when receiving VerticalSpeed value");
+                            if (answer == timeoutMsg)
+                            {
+                                this.timer.Interval = TimeSpan.FromSeconds(4);
+                                showIndicationOnScreen("Server is under load of requests");
+                            }
+                            else // Got an ERR as an answer
+                            {
+                                showIndicationOnScreen("Error when receiving VerticalSpeed value");
+                            }
                         }
 
                         this.telnetClient.write(latitude1);
@@ -450,16 +538,24 @@ namespace HomeWork
                             }
                             else
                             {
-                                /*----------------------------------out of the world-------------------------------------*/
-                                //is it even possible to get values out of the range? -- question for mister dimka
+                                showIndicationOnScreen("Invalid Latitude value on map(cannot get out of Earth)");
                             }
                         }
                         else
                         {
-                            showIndicationOnScreen("Error when receiving Latitude value");
+                            if (answer == timeoutMsg)
+                            {
+                                this.timer.Interval = TimeSpan.FromSeconds(4);
+                                showIndicationOnScreen("Server is under load of requests");
+                            }
+                            else // Got an ERR as an answer
+                            {
+                                showIndicationOnScreen("Error when receiving Latitude value");
+                            }
                         }
 
                         this.telnetClient.write(longitude1);
+
                         answer = this.telnetClient.read().Split('\n')[0];
                         isNumber = double.TryParse(answer, out stam);
 
@@ -472,32 +568,45 @@ namespace HomeWork
                             }
                             else
                             {
-                                /*----------------------------------out of the world-------------------------------------*/
+                                showIndicationOnScreen("Invalid Longitude value on map(cannot get out of Earth)");
                             }
                         }
                         else
                         {
-                            showIndicationOnScreen("Error when receiving Longitude value");
+                            if (answer == timeoutMsg)
+                            {
+                                this.timer.Interval = TimeSpan.FromSeconds(4);
+                                showIndicationOnScreen("Server is under load of requests");
+                            }
+                            else // Got an ERR as an answer
+                            {
+                                showIndicationOnScreen("Error when receiving Longitude value");
+                            }
                         }
 
                         mut1.ReleaseMutex();
 
-
                         Thread.Sleep(125);
+
+
                     }
-                }
-                catch (IOException e)
-                {
-                    this.timer.Interval = TimeSpan.FromSeconds(10);
-                    showIndicationOnScreen(e.Message);
-                    mut1.ReleaseMutex();
-                    disconnect();
-                }
-                catch (ObjectDisposedException e)
-                {
-                    this.timer.Interval = TimeSpan.FromSeconds(1);
-                    showIndicationOnScreen(e.Message);
-                    mut1.ReleaseMutex();
+                    catch (IOException e)
+                    {
+                        this.timer.Interval = TimeSpan.FromSeconds(10);
+                        showIndicationOnScreen(e.Message);
+                        mut1.ReleaseMutex();
+
+                        disconnect();
+
+
+                     
+                    }
+                    catch (ObjectDisposedException e)
+                    {
+                        this.timer.Interval = TimeSpan.FromSeconds(1);
+                        showIndicationOnScreen(e.Message);
+                        mut1.ReleaseMutex();
+                    }
                 }
 
             }).Start();
@@ -512,19 +621,30 @@ namespace HomeWork
 
         public void sendSetRequest(string setRequest, string varName)
         {
-            try
+            try// make time out 
             {
-                mut1.WaitOne();
-                this.telnetClient.write(setRequest);
-                string answer = this.telnetClient.read();
-
-                //mut1.ReleaseMutex();
-
-                int index = answer.IndexOf("\n");
-                string subStr = answer.Substring(0, index);
-                if (subStr == "ERR")
+                if (mut1.WaitOne(1))
                 {
-                    showIndicationOnScreen("Error when receiving " + varName + " value");
+                    this.telnetClient.write(setRequest);
+                    this.telnetClient.makeFlush();
+                    mut1.ReleaseMutex();
+                    /*string answer = this.telnetClient.read();
+
+
+                    int index = answer.IndexOf("\n");
+                    string subStr = answer.Substring(0, index);
+                    if (subStr == "ERR")
+                    {
+                        showIndicationOnScreen("Error when receiving " + varName + " value");
+                    }*/
+                }
+                else
+                {
+                    int x = 5;
+                    x++;
+
+                    this.timer.Interval = TimeSpan.FromSeconds(1);
+                    showIndicationOnScreen("not writting\n");
                 }
             }
             catch (IOException e)
@@ -532,17 +652,19 @@ namespace HomeWork
                 this.timer.Interval = TimeSpan.FromSeconds(10);
                 showIndicationOnScreen(e.Message);
                 disconnect();
+                mut1.ReleaseMutex();
+
+
+
             }
             catch (ObjectDisposedException e)
             {
                 this.timer.Interval = TimeSpan.FromSeconds(1);
                 showIndicationOnScreen(e.Message);
+                mut1.ReleaseMutex();
 
             }
-            finally
-            {
-                mut1.ReleaseMutex();
-            }
+        
         }
 
     }
