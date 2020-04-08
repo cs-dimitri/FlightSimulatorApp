@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,49 +20,62 @@ namespace HomeWork
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
     public partial class MainWindow : Window
     {
 
         public MainWindow()
         {
+
+
+
+            VM_Sensor vmSensor = new VM_Sensor(App.myFlightSimulatorModel);
+            VM_Map vmMap = new VM_Map(App.myFlightSimulatorModel);
+            VM_Navigator_Controller vmController = new VM_Navigator_Controller(App.myFlightSimulatorModel);
+            VM_Warnings vmWarnings = new VM_Warnings(App.myFlightSimulatorModel);
+
+            ///// From here to down when server karas
+            UserInput popUpInput = new UserInput();
+            popUpInput.ShowDialog();
+
+            string port = ConfigurationManager.AppSettings.Get("Port");
+            string ip = ConfigurationManager.AppSettings.Get("IP");
+
+          
             InitializeComponent();
-            IFlightSimulatorModel myFlightSimulatorModel = new MyFlightSimulatorModel(new MyTelnetClient());
-
-
-            VM_Sensor vmSensor = new VM_Sensor(myFlightSimulatorModel);
-
-            Map map = my_map;
-            VM_Map vmMap = new VM_Map(myFlightSimulatorModel);
-
-
-            myFlightSimulatorModel.connect("127.0.0.1", "7771");
-            myFlightSimulatorModel.start();
-
-
-            VM_Navigator_Controller vmController = new VM_Navigator_Controller();
             Joystick_Var.SetVM(vmController);
-
+            Sensors_Var.SetVM(vmSensor);
+            MyWarningsIndicator.SetVM(vmWarnings);
 
             DataContext = new
             {
                 vmMap,
                 vmSensor,
-                vmController
+                vmController,
+                vmWarnings
             };
 
+            App.myFlightSimulatorModel.connect(ip,port);
+            App.myFlightSimulatorModel.start();
+
+ 
         }
 
-        private void Joystick_Loaded(object sender, RoutedEventArgs e)
-        {
 
-        }
+
+        private void Joystick_Loaded(object sender, RoutedEventArgs e) { }
+
         //For sake of joystick
         private void ButtonMouse_Up(object sender, MouseButtonEventArgs e)
         {
+            //this.Joystick_Var.SetPiptickToCenter_NO_UPDATE();
             this.Joystick_Var.SetPiptickToCenter();
             Joystick_Var.mouseIsPressed = false;
         }
-
-
     }
 }
