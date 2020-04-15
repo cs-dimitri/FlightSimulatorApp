@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,10 +8,9 @@ using System.Windows.Input;
 using System.Windows.Controls;
 using System.Windows.Shapes;
 using System.Windows.Media;
-using System.Drawing.Drawing2D;
 
 
-namespace HomeWork
+namespace FlightSimulatorApp
 {
     public partial class Joystick
     {
@@ -26,11 +24,6 @@ namespace HomeWork
 
 
         public bool mouseIsPressed = false;
-        
-
-
-
-       
 
         private double dummyDoubleWidth;
 
@@ -45,19 +38,19 @@ namespace HomeWork
         private bool checkBoard;
 
         VM_Navigator_Controller vm;
- 
+
         public Joystick()
         {
-           InitializeComponent();
-            initX = this.knobPosition.X;  
+            InitializeComponent();
+            initX = this.knobPosition.X;
             initY = this.knobPosition.Y;
- 
+
             radius_Small = KnobBase.Height / 2;
             radius_Outside = OuttestEllipse.Width / 2;
 
-            dummyDoubleWidth = 2*dummy_centre.Width + 1;
+            dummyDoubleWidth = 2 * dummy_centre.Width + 1;
             dummy_centre.Fill = new SolidColorBrush(Colors.Red);
-                   
+
         }
         public void SetVM(VM_Navigator_Controller vm_1)
         {
@@ -66,9 +59,9 @@ namespace HomeWork
 
         private void MouseLeftDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            mouseIsPressed = true;    
+            mouseIsPressed = true;
         }
-        
+
         void centerKnob_Completed(object sender, EventArgs e)
         {
 
@@ -83,9 +76,9 @@ namespace HomeWork
             if (mouseIsPressed)
             {
                 // if point inside maagal
-                checkBoard = (Math.Pow(x1 + knobPosition.X  - initX, 2) + 
+                checkBoard = (Math.Pow(x1 + knobPosition.X - initX, 2) +
                     Math.Pow(y1 + knobPosition.Y - initY, 2)) <= Math.Pow(radius_Outside - radius_Small + lookBetter, 2);
-                
+
                 if (checkBoard)// if it does
                 {
                     // moving inside
@@ -93,22 +86,27 @@ namespace HomeWork
                     knobPosition.Y += y1;
 
 
-                    
+
                     // getting position relatively to (0,0) in centere
                     position_TO_MOVE = getTruePoint(e.GetPosition(OuttestEllipse));
-                
-                    
+
+
                     //calculation to get needed range 
                     calculatedRudder = (position_TO_MOVE.X) / (radius_Outside + lookBetter - radius_Small - dummyDoubleWidth);
                     calculatedRudder = Math.Round(calculatedRudder, 3);
                     this.vm.vm_Rudder = calculatedRudder;
-                    
- 
+
+
                     calculatedElevator = (position_TO_MOVE.Y) / (radius_Outside + lookBetter - radius_Small - dummyDoubleWidth);
                     calculatedElevator = Math.Round(calculatedElevator, 3);
                     this.vm.vm_Elevator = calculatedElevator;
                 }
             }
+        }
+        public void SetPiptickToCenter_NO_UPDATE()
+        {
+            knobPosition.X = initX;
+            knobPosition.Y = initY;
         }
         //when button of mouse was freed
         public void SetPiptickToCenter()
@@ -126,8 +124,8 @@ namespace HomeWork
 
             if (mouseIsPressed)
             {
-                knobPosition.X -= -position.X ;
-                knobPosition.Y -= -position.Y ;
+                knobPosition.X -= -position.X;
+                knobPosition.Y -= -position.Y;
             }
         }
         // to get relatively to (0,0)
@@ -160,28 +158,30 @@ namespace HomeWork
             {
                 xToSet = -(radius_Outside - xPoint);
                 yToSet = radius_Outside - yPoint;
-            }else if (xPoint >= radius_Outside && yPoint <= radius_Outside) // 1
+            }
+            else if (xPoint >= radius_Outside && yPoint <= radius_Outside) // 1
             {
                 xToSet = xPoint - radius_Outside;
                 yToSet = radius_Outside - yPoint;
-            }else if (xPoint > radius_Outside && yPoint > radius_Outside) // 4
+            }
+            else if (xPoint > radius_Outside && yPoint > radius_Outside) // 4
             {
                 xToSet = xPoint - radius_Outside;
                 yToSet = -(yPoint - radius_Outside);
-            }else if (xPoint < radius_Outside && yPoint > radius_Outside) //3
+            }
+            else if (xPoint < radius_Outside && yPoint > radius_Outside) //3
             {
 
                 xToSet = -(radius_Outside - xPoint);
                 yToSet = -(yPoint - radius_Outside);
             }
 
-            return new Point(xToSet,yToSet);
+            return new Point(xToSet, yToSet);
         }
     }
 
-  
 
-   
+
+
 
 }
-

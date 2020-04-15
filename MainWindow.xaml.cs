@@ -15,7 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Maps.MapControl.WPF;
 
-namespace HomeWork
+namespace FlightSimulatorApp
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -31,22 +31,19 @@ namespace HomeWork
 
         public MainWindow()
         {
-
-
-
             VM_Sensor vmSensor = new VM_Sensor(App.myFlightSimulatorModel);
             VM_Map vmMap = new VM_Map(App.myFlightSimulatorModel);
             VM_Navigator_Controller vmController = new VM_Navigator_Controller(App.myFlightSimulatorModel);
             VM_Warnings vmWarnings = new VM_Warnings(App.myFlightSimulatorModel);
 
-            ///// From here to down when server karas
+            ///// From here to down when server crashes
             UserInput popUpInput = new UserInput();
             popUpInput.ShowDialog();
 
             string port = ConfigurationManager.AppSettings.Get("Port");
             string ip = ConfigurationManager.AppSettings.Get("IP");
 
-          
+
             InitializeComponent();
             Joystick_Var.SetVM(vmController);
             Sensors_Var.SetVM(vmSensor);
@@ -60,10 +57,15 @@ namespace HomeWork
                 vmWarnings
             };
 
-            App.myFlightSimulatorModel.connect(ip,port);
-            App.myFlightSimulatorModel.start();
+            if(!App.myFlightSimulatorModel.connect(ip, port))
+            {
+                App.myFlightSimulatorModel.showIndicationOnScreen("Cannot connect to server!");
+            } 
+            else
+            {
+                App.myFlightSimulatorModel.start();
+            }
 
- 
         }
 
 
@@ -73,8 +75,7 @@ namespace HomeWork
         //For sake of joystick
         private void ButtonMouse_Up(object sender, MouseButtonEventArgs e)
         {
-            //this.Joystick_Var.SetPiptickToCenter_NO_UPDATE();
-            this.Joystick_Var.SetPiptickToCenter();
+            this.Joystick_Var.SetPiptickToCenter_NO_UPDATE();
             Joystick_Var.mouseIsPressed = false;
         }
     }
